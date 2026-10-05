@@ -2511,6 +2511,9 @@ class PlayerProvider extends ChangeNotifier with WidgetsBindingObserver {
         quality: _audioQuality.value,
         albumId: song.albumId,
         albumAudioId: song.albumAudioId,
+        title: song.title,
+        artist: song.artist,
+        songSeconds: song.duration?.inSeconds,
       );
       // 竞态保护：请求期间切歌则丢弃
       if (result != null &&
@@ -2596,6 +2599,9 @@ class PlayerProvider extends ChangeNotifier with WidgetsBindingObserver {
           quality: _audioQuality.value,
           albumId: song.albumId,
           albumAudioId: song.albumAudioId,
+          title: song.title,
+          artist: song.artist,
+          songSeconds: song.duration?.inSeconds,
         );
         if (result != null && result.url.isNotEmpty) {
           newUrl = result.url;
@@ -2734,6 +2740,9 @@ class PlayerProvider extends ChangeNotifier with WidgetsBindingObserver {
         quality: targetQuality,
         albumId: song.albumId,
         albumAudioId: song.albumAudioId,
+        title: song.title,
+        artist: song.artist,
+        songSeconds: song.duration?.inSeconds,
       );
 
       if (!_isPlaybackRequestCurrent(playbackRequest) ||
@@ -2961,6 +2970,9 @@ class PlayerProvider extends ChangeNotifier with WidgetsBindingObserver {
         quality: _audioQuality.value,
         albumId: song.albumId,
         albumAudioId: song.albumAudioId,
+        title: song.title,
+        artist: song.artist,
+        songSeconds: song.duration?.inSeconds,
       );
       if (result == null || result.url.isEmpty) return null;
       return result.url;
@@ -3150,6 +3162,9 @@ class PlayerProvider extends ChangeNotifier with WidgetsBindingObserver {
           quality: _audioQuality.value,
           albumId: song.albumId,
           albumAudioId: song.albumAudioId,
+          title: song.title,
+          artist: song.artist,
+          songSeconds: song.duration?.inSeconds,
         );
         if (!_isCrossfadePreparationCurrent(ticket)) {
           return;
@@ -3632,6 +3647,9 @@ class PlayerProvider extends ChangeNotifier with WidgetsBindingObserver {
         quality: _audioQuality.value,
         albumId: song.albumId,
         albumAudioId: song.albumAudioId,
+        title: song.title,
+        artist: song.artist,
+        songSeconds: song.duration?.inSeconds,
       );
       if (!_isPlaybackRequestCurrent(request)) return;
 
@@ -3744,6 +3762,9 @@ class PlayerProvider extends ChangeNotifier with WidgetsBindingObserver {
           quality: _audioQuality.value,
           albumId: _currentSong!.albumId,
           albumAudioId: _currentSong!.albumAudioId,
+          title: _currentSong?.title ?? '',
+          artist: _currentSong?.artist ?? '',
+          songSeconds: _currentSong?.duration?.inSeconds,
         );
         if (!_isPlaybackRequestCurrent(playbackRequest)) {
           _isResolvingUrl = false;
@@ -3875,6 +3896,9 @@ class PlayerProvider extends ChangeNotifier with WidgetsBindingObserver {
           quality: _audioQuality.value,
           albumId: _currentSong!.albumId,
           albumAudioId: _currentSong!.albumAudioId,
+          title: _currentSong?.title ?? '',
+          artist: _currentSong?.artist ?? '',
+          songSeconds: _currentSong?.duration?.inSeconds,
         );
         if (!_isPlaybackRequestCurrent(playbackRequest)) {
           _isResolvingUrl = false;
@@ -3981,6 +4005,9 @@ class PlayerProvider extends ChangeNotifier with WidgetsBindingObserver {
           quality: quality,
           albumId: song.albumId,
           albumAudioId: song.albumAudioId,
+        title: song.title,
+        artist: song.artist,
+        songSeconds: song.duration?.inSeconds,
         );
         url = result?.url;
         actualQuality = result?.quality;
@@ -4115,6 +4142,9 @@ class PlayerProvider extends ChangeNotifier with WidgetsBindingObserver {
         quality: quality ?? _audioQuality.value,
         albumId: song.albumId,
         albumAudioId: song.albumAudioId,
+        title: song.title,
+        artist: song.artist,
+        songSeconds: song.duration?.inSeconds,
       );
       if (result != null && result.url.isNotEmpty) {
         if (updateActualQuality) _actualPlayingQuality = result.quality;
@@ -4843,6 +4873,9 @@ class PlayerProvider extends ChangeNotifier with WidgetsBindingObserver {
             albumId: _currentSong!.albumId,
             albumAudioId: _currentSong!.albumAudioId,
             onLocalFailure: (failure) => localApiFailure = failure,
+            title: _currentSong?.title ?? '',
+            artist: _currentSong?.artist ?? '',
+            songSeconds: _currentSong?.duration?.inSeconds,
           );
           if (!_isPlaybackRequestCurrent(request) ||
               _currentSong?.id != requestedSongId) {
@@ -5461,6 +5494,9 @@ class PlayerProvider extends ChangeNotifier with WidgetsBindingObserver {
             quality: _audioQuality.value,
             albumId: _currentSong!.albumId,
             albumAudioId: _currentSong!.albumAudioId,
+            title: _currentSong?.title ?? '',
+            artist: _currentSong?.artist ?? '',
+            songSeconds: _currentSong?.duration?.inSeconds,
           );
           if (result != null && result.url.isNotEmpty) {
             _actualPlayingQuality = result.quality;
@@ -5874,6 +5910,9 @@ class PlayerProvider extends ChangeNotifier with WidgetsBindingObserver {
         quality: _audioQuality.value,
         albumId: song.albumId,
         albumAudioId: song.albumAudioId,
+        title: song.title,
+        artist: song.artist,
+        songSeconds: song.duration?.inSeconds,
       );
       if (!_isPlaybackRequestCurrent(playbackRequest) ||
           _currentSong?.id != song.id) {
@@ -6088,7 +6127,7 @@ class PlayerProvider extends ChangeNotifier with WidgetsBindingObserver {
       songId: song.id,
       // 使用 displayName 剥离 .mp3 等扩展名，与 _createAudioSource 行为保持一致
       title: song.displayName,
-      artist: song.artist,
+    artist: song.artist,
       artUrl: artUrl,
       // 本地歌曲传递文件路径，供原生侧提取内嵌封面
       fallbackFilePath: song.localPath,

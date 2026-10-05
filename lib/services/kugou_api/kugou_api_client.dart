@@ -14,6 +14,7 @@ import 'kugou_endpoints.dart';
 import 'kugou_models.dart';
 import 'lyric_lookup_result.dart';
 import 'comment_send_result.dart';
+import 'external_source.dart';
 import '../local_server_lifecycle.dart';
 
 /// 一次广告领取（/youth/vip → /youth/v1/ad/play_report）的判定结果。
@@ -104,6 +105,9 @@ class KugouApiClient {
   }
 
   late final Dio _dio;
+
+  /// 外部音源补位解析器（酷狗只给低音质时按需调用）。
+  final ExternalSource _externalSource = ExternalSource();
 
   /// 暴露 Dio 实例供外部使用（如封面资源下载）。
   Dio get dio => _dio;
@@ -1370,6 +1374,10 @@ class KugouApiClient {
     String? albumAudioId,
     Duration totalTimeout = const Duration(seconds: 45),
     void Function(PlaybackUrlLocalFailure failure)? onLocalFailure,
+    String? title,
+    String? artist,
+    int? songSeconds,
+    bool allowExternalSource = true,
   }) async {
     final cancelToken = CancelToken();
     final deadline = Timer(totalTimeout, () {
@@ -1383,6 +1391,7 @@ class KugouApiClient {
     }
 
     try {
+      Future<KugouPlayUrl?> resolve() async {
       final chain = downgradeChain(quality);
 
       KugouPlayUrl? best;
@@ -1472,8 +1481,81 @@ class KugouApiClient {
       } catch (_) {}
 
       return null;
+      }
+
+      var resolved = await resolve();
+      resolved = await _maybeUpgradeFromExternalSource(
+        resolved,
+        hash: hash,
+        title: title,
+        artist: artist,
+        songSeconds: songSeconds,
+        requestedQuality: quality,
+        allowExternalSource: allowExternalSource,
+      );
+      return resolved;
     } finally {
       deadline.cancel();
+    }
+  }
+
+  /// 酷狗只给到低音质时的外部音源补位。
+  ///
+  /// 触发条件（全部满足才替换）：
+  ///  · 已有可用地址（不接管"完全拿不到链接"的失败场景，那属于版权拦截）；
+  ///  · 实际音质低于请求音质（请求 128 时不折腾）；
+  ///  · 拿到歌曲元数据（歌名/歌手/时长），否则无法安全对齐同一录音；
+  ///  · 外部源估算码率严格更高（EstimateKbps 同口径比较）。
+  Future<KugouPlayUrl?> _maybeUpgradeFromExternalSource(
+    KugouPlayUrl? current, {
+    required String hash,
+    required String requestedQuality,
+    String? title,
+    String? artist,
+    int? songSeconds,
+    required bool allowExternalSource,
+  }) async {
+    if (current == null || current.url.isEmpty || current.isTrial) return current;
+    if (!allowExternalSource) return current;
+    if (qualityRank(current.quality) >= qualityRank(requestedQuality)) {
+      return current;
+    }
+    if (title == null || title.isEmpty || artist == null || artist.isEmpty) {
+      return current;
+    }
+
+    final currentKbps = ExternalSource.estimateKbps(
+      fileSize: current.fileSize,
+      seconds: songSeconds ?? 0,
+    );
+    if (currentKbps <= 0) return current;
+
+    try {
+      final better = await _externalSource.resolveHigherQuality(
+        title: title,
+        artist: artist,
+        kugouSeconds: songSeconds ?? 0,
+        currentKbps: currentKbps,
+      );
+      if (better == null || better.url.isEmpty) return current;
+      if (qualityRank(better.quality) <= qualityRank(current.quality)) {
+        return current;
+      }
+      debugPrint(
+        '[ExternalSource] $title/$artist 换源：'
+        '${current.quality}(${currentKbps}kbps) → '
+        '${better.quality}(${ExternalSource.estimateKbps(fileSize: better.fileSize, seconds: songSeconds ?? 0)}kbps)',
+      );
+      return KugouPlayUrl(
+        url: better.url,
+        fileSize: better.fileSize,
+        bitRate: better.bitRate,
+        quality: better.quality,
+        isTrial: false,
+      );
+    } catch (e) {
+      debugPrint('[ExternalSource] 换源失败：$e');
+      return current;
     }
   }
 
