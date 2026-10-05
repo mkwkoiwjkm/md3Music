@@ -3762,9 +3762,9 @@ class PlayerProvider extends ChangeNotifier with WidgetsBindingObserver {
           quality: _audioQuality.value,
           albumId: _currentSong!.albumId,
           albumAudioId: _currentSong!.albumAudioId,
-          title: _currentSong?.title ?? '',
-          artist: _currentSong?.artist ?? '',
-          songSeconds: _currentSong?.duration?.inSeconds,
+          title: _currentSong?.title,
+          artist: _currentSong?.artist,
+          songSeconds: _currentSong?.duration.inSeconds,
         );
         if (!_isPlaybackRequestCurrent(playbackRequest)) {
           _isResolvingUrl = false;
@@ -3896,9 +3896,9 @@ class PlayerProvider extends ChangeNotifier with WidgetsBindingObserver {
           quality: _audioQuality.value,
           albumId: _currentSong!.albumId,
           albumAudioId: _currentSong!.albumAudioId,
-          title: _currentSong?.title ?? '',
-          artist: _currentSong?.artist ?? '',
-          songSeconds: _currentSong?.duration?.inSeconds,
+          title: _currentSong?.title,
+          artist: _currentSong?.artist,
+          songSeconds: _currentSong?.duration.inSeconds,
         );
         if (!_isPlaybackRequestCurrent(playbackRequest)) {
           _isResolvingUrl = false;
@@ -4873,9 +4873,9 @@ class PlayerProvider extends ChangeNotifier with WidgetsBindingObserver {
             albumId: _currentSong!.albumId,
             albumAudioId: _currentSong!.albumAudioId,
             onLocalFailure: (failure) => localApiFailure = failure,
-            title: _currentSong?.title ?? '',
-            artist: _currentSong?.artist ?? '',
-            songSeconds: _currentSong?.duration?.inSeconds,
+            title: _currentSong?.title,
+            artist: _currentSong?.artist,
+            songSeconds: _currentSong?.duration.inSeconds,
           );
           if (!_isPlaybackRequestCurrent(request) ||
               _currentSong?.id != requestedSongId) {
@@ -5494,9 +5494,9 @@ class PlayerProvider extends ChangeNotifier with WidgetsBindingObserver {
             quality: _audioQuality.value,
             albumId: _currentSong!.albumId,
             albumAudioId: _currentSong!.albumAudioId,
-            title: _currentSong?.title ?? '',
-            artist: _currentSong?.artist ?? '',
-            songSeconds: _currentSong?.duration?.inSeconds,
+            title: _currentSong?.title,
+            artist: _currentSong?.artist,
+            songSeconds: _currentSong?.duration.inSeconds,
           );
           if (result != null && result.url.isNotEmpty) {
             _actualPlayingQuality = result.quality;
