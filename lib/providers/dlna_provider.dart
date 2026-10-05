@@ -189,6 +189,9 @@ class DlnaProvider extends ChangeNotifier {
             quality: playerProvider.audioQuality.value,
             albumId: song.albumId,
             albumAudioId: song.albumAudioId,
+            title: song.title,
+            artist: song.artist,
+            songSeconds: song.duration.inSeconds,
           );
           if (result == null || result.url.isEmpty) {
             _state = DlnaCastState.error;
