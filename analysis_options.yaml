@@ -19,6 +19,12 @@ analyzer:
     - android/**
     - web/**
     - windows/**
+    # 公开导出树不带私有目录（lib/private/**）与内部脚本（scripts/tools/**），
+    # 这三个测试文件因此引用不到目标，会以 error 级别卡住 flutter analyze。
+    # 上游私有树里它们照常参与分析，此处仅豁免公开树缺失的依赖。
+    - test/private/**
+    - test/modules/settings/settings_search_index_test.dart
+    - test/modules/settings/settings_subpage_structure_test.dart
 
 linter:
   # The lint rules applied to this project can be customized in the
